@@ -36,18 +36,17 @@ public class Tracker extends Thread {
 					Thread.sleep(2000);
 					continue;
 				}
-				System.out.println(line);
+
 				Main.queue.add(line);
 			}
 			new Sender().run();
 			int exitCode = p.exitValue();
 			System.out.println("Tracker exited. ExitCode: " + exitCode);
 			System.exit(1);
-			//System.out.println("Tracker restart...");
-			//new Tracker(command).start();
+
 		} catch (Exception e) {
 			System.out.println("Tracking failed: " + e.getMessage());
-			e.printStackTrace();
+
 			if (p != null && p.isAlive()) {
 				p.destroy();
 			}

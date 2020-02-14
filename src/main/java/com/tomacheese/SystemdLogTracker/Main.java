@@ -39,6 +39,7 @@ public class Main {
 		Properties props = new Properties();
 		if (!f.exists()) {
 			props.setProperty("discordToken", "-----");
+            props.setProperty("pattern", "-----");
 			props.setProperty("channelId", "-----");
 			props.setProperty("webhookUrl", "-----");
 			props.setProperty("webhookAvatarUrl", "-----");
@@ -129,8 +130,7 @@ public class Main {
 		}
 
 		List<String> command = new LinkedList<>();
-		//command.add("/bin/sh");
-		//command.add("-c");
+
 		command.add("journalctl");
 		command.addAll(Arrays.asList(props.getProperty("arguments").split(" ")));
 		System.out.println("Run command: " + String.join(" ", command));
@@ -144,7 +144,8 @@ public class Main {
 		} catch (NumberFormatException e) {
 			sendInterval = 5000;
 		}
-		timer.scheduleAtFixedRate(new Sender(), 0, sendInterval);
+
+		timer.scheduleAtFixedRate(new Sender(props.getProperty("pattern")), 0, sendInterval);
 	}
 
 	public static JDA getJda() {
@@ -163,14 +164,12 @@ public class Main {
 		return channel;
 	}
 
-	public static void SendMessage(String text) {
+	public static void sendMessage(String text) {
 		if (text.length() >= 2000) {
 			System.out.println("SendError: nagasugi " + text.length() + "\n" + text);
 		}
 		if (channel != null) {
-			channel.sendMessage(text).queue(null, v -> {
-				System.out.println("Failed to send message: " + text + " (" + v.getMessage() + ")");
-			});
+			channel.sendMessage(text).queue(null, v -> System.out.println("Failed to send message: " + text + " (" + v.getMessage() + ")"));
 		} else if (webhookUrl != null) {
 			WebhookClient client = new WebhookClientBuilder(webhookUrl).build();
 			WebhookMessageBuilder builder = new WebhookMessageBuilder()
